@@ -1,0 +1,9 @@
+development:
+  username: aeflanta
+  password: aefaef
+production:
+  username: aeflanta
+  password: aefaef
+test:
+  username: aeflanta
+  password: aefaef
