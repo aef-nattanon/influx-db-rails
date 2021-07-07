@@ -1,49 +1,25 @@
-# require 'influxdb-client'
+require 'influxdb-client'
 
-# # You can generate a Token from the "Tokens Tab" in the UI
-# token = '7wQejxjJ5FVj4IpXU2SdgAOngBvjAc8Nro3QcbsDj6Q1A7rwB5zWP6wxqge2v8DVlb5PXIFOBTOUg6viiStuTw=='
-# org = 'my-org'
-# bucket = 'my-bucket-1'
+# You can generate a Token from the "Tokens Tab" in the UI
+token = 'YyD4UGu4_Xn0CIVsycFdjaQVd7m1g5wRp0z2BCfBSyNL6-GHqqyZRePGy46B2m8Zg6jgqHAN_J6jyhCmvGeQRA=='
+org = 'MDBEnergy'
+bucket = 'MDBEnergy'
+client = InfluxDB2::Client.new('http://188.166.252.165:8086', token,
+                               verify_mode: OpenSSL::SSL::VERIFY_NONE,
+                               use_ssl: false,
+                               precision: InfluxDB2::WritePrecision::NANOSECOND)
+query = 'from(bucket: "' + bucket + '")
+|> range(start: -1m)
+|> filter(fn: (r) => r["_measurement"] == "cpu")
+|> filter(fn: (r) => r["_field"] == "usage_user")
+|> filter(fn: (r) => r["cpu"] == "cpu-total" or r["cpu"] == "cpu0" or r["cpu"] == "cpu1")
+|> yield(name: "sum")'
 
-# client = InfluxDB2::Client.new('http://localhost:8086', token,
-#                                precision: InfluxDB2::WritePrecision::NANOSECOND)
+puts query
+tables = client.create_query_api.query(query: query, org: org)
 
-# # write_api = client.create_write_api
-# # # data
-# # data = 'mem,host=host1 used_percent=23.43234543'
-# # write_api.write(data: data, bucket: bucket, org: org)
-# # #####################################################
-# # # point
-# # point = InfluxDB2::Point.new(name: 'mem')
-# #                         .add_tag('host', 'host1')
-# #                         .add_field('used_percent', 23.43234543)
-# #                         .time(Time.now.utc, InfluxDB2::WritePrecision::NANOSECOND)
-# # write_api.write(data: point, bucket: bucket, org: org)
-# # #####################################################
-# # # hash
-# # hash = { name: 'h2o',
-# #          tags: { host: 'aws', region: 'us' },
-# #          fields: { level: 5, saturation: '99%' },
-# #          time: Time.now.utc }
-# # write_api.write(data: hash, bucket: bucket, org: org)
-# # #####################################################
-# # # Batch Sequence to write data
-# # point = InfluxDB2::Point.new(name: 'mem')
-# #                         .add_tag('host', 'host1')
-# #                         .add_field('used_percent', 23.43234543)
-# #                         .time(Time.now.utc, InfluxDB2::WritePrecision::NANOSECOND)
+puts tables
 
-# # hash = { name: 'h2o',
-# #          tags: { host: 'aws', region: 'us' },
-# #          fields: { level: 5, saturation: '99%' },
-# #          time: Time.now.utc }
-# # data = 'mem,host=host1 used_percent=23.23234543'
-# # write_api.write(data: [point, hash, data], bucket: bucket, org: org)
-# # #####################################################
-# # query
-# query = 'from(bucket: "' + bucket + '") |> range(start: -1h)'
 
-# puts query
-# tables = client.create_query_api.query(query: query, org: org)
 
-# puts tables
+{0=>#<InfluxDB2::FluxTable:0x00007fb23a8e0af0 @columns=[#<InfluxDB2::FluxColumn:0x00007fb23a8e0348 @index=0, @label="result", @data_type="string", @group=false, @default_value="sum">, #<InfluxDB2::FluxColumn:0x00007fb23a8e01e0 @index=1, @label="table", @data_type="long", @group=false, @default_value=nil>, #<InfluxDB2::FluxColumn:0x00007fb23a8e00f0 @index=2, @label="_start", @data_type="dateTime:RFC3339", @group=true, @default_value=nil>, #<InfluxDB2::FluxColumn:0x00007fb23a8e0078 @index=3, @label="_stop", @data_type="dateTime:RFC3339", @group=true, @default_value=nil>, #<InfluxDB2::FluxColumn:0x00007fb23a8ebe78 @index=4, @label="_time", @data_type="dateTime:RFC3339", @group=false, @default_value=nil>, #<InfluxDB2::FluxColumn:0x00007fb23a8ebdd8 @index=5, @label="_value", @data_type="double", @group=false, @default_value=nil>, #<InfluxDB2::FluxColumn:0x00007fb23a8ebce8 @index=6, @label="_field", @data_type="string", @group=true, @default_value=nil>, #<InfluxDB2::FluxColumn:0x00007fb23a8ebae0 @index=7, @label="_measurement", @data_type="string", @group=true, @default_value=nil>, #<InfluxDB2::FluxColumn:0x00007fb23a8eb9c8 @index=8, @label="cpu", @data_type="string", @group=true, @default_value=nil>, #<InfluxDB2::FluxColumn:0x00007fb23a8eb888 @index=9, @label="host", @data_type="string", @group=true, @default_value=nil>, #<InfluxDB2::FluxColumn:0x00007fb23a8eb798 @index=10, @label="user", @data_type="string", @group=true, @default_value=nil>], @records=[#<InfluxDB2::FluxRecord:0x00007fb23a8ea140 @table=0, @values={"result"=>nil, "table"=>0, "_start"=>"2021-07-02T09:01:51.412495093+00:00", "_stop"=>"2021-07-02T09:02:51.412495093+00:00", "_time"=>"2021-07-02T09:02:00.000000000+00:00", "_value"=>0.20040080149859668, "_field"=>"usage_user", "_measurement"=>"cpu", "cpu"=>"cpu-total", "host"=>"mdbenergy", "user"=>"admin"}>, #<InfluxDB2::FluxRecord:0x00007fb23a8f1940 @table=0, @values={"result"=>nil, "table"=>0, "_start"=>"2021-07-02T09:01:51.412495093+00:00", "_stop"=>"2021-07-02T09:02:51.412495093+00:00", "_time"=>"2021-07-02T09:02:10.000000000+00:00", "_value"=>0.5513784461859998, "_field"=>"usage_user", "_measurement"=>"cpu", "cpu"=>"cpu-total", "host"=>"mdbenergy", "user"=>"admin"}>, #<InfluxDB2::FluxRecord:0x00007fb23a8f9e88 @table=0, @values={"result"=>nil, "table"=>0, "_start"=>"2021-07-02T09:01:51.412495093+00:00", "_stop"=>"2021-07-02T09:02:51.412495093+00:00", "_time"=>"2021-07-02T09:02:20.000000000+00:00", "_value"=>0.45067601403044577, "_field"=>"usage_user", "_measurement"=>"cpu", "cpu"=>"cpu-total", "host"=>"mdbenergy", "user"=>"admin"}>, #<InfluxDB2::FluxRecord:0x00007fb23a901570 @table=0, @values={"result"=>nil, "table"=>0, "_start"=>"2021-07-02T09:01:51.412495093+00:00", "_stop"=>"2021-07-02T09:02:51.412495093+00:00", "_time"=>"2021-07-02T09:02:30.000000000+00:00", "_value"=>4.613841524397167, "_field"=>"usage_user", "_measurement"=>"cpu", "cpu"=>"cpu-total", "host"=>"mdbenergy", "user"=>"admin"}>, #<InfluxDB2::FluxRecord:0x00007fb23a90a9e0 @table=0, @values={"result"=>nil, "table"=>0, "_start"=>"2021-07-02T09:01:51.412495093+00:00", "_stop"=>"2021-07-02T09:02:51.412495093+00:00", "_time"=>"2021-07-02T09:02:40.000000000+00:00", "_value"=>0.20010005006354084, "_field"=>"usage_user", "_measurement"=>"cpu", "cpu"=>"cpu-total", "host"=>"mdbenergy", "user"=>"admin"}>]>, 1=>#<InfluxDB2::FluxTable:0x00007fb23a913568 @columns=[#<InfluxDB2::FluxColumn:0x00007fb23a8e0348 @index=0, @label="result", @data_type="string", @group=false, @default_value="sum">, #<InfluxDB2::FluxColumn:0x00007fb23a8e01e0 @index=1, @label="table", @data_type="long", @group=false, @default_value=nil>, #<InfluxDB2::FluxColumn:0x00007fb23a8e00f0 @index=2, @label="_start", @data_type="dateTime:RFC3339", @group=true, @default_value=nil>, #<InfluxDB2::FluxColumn:0x00007fb23a8e0078 @index=3, @label="_stop", @data_type="dateTime:RFC3339", @group=true, @default_value=nil>, #<InfluxDB2::FluxColumn:0x00007fb23a8ebe78 @index=4, @label="_time", @data_type="dateTime:RFC3339", @group=false, @default_value=nil>, #<InfluxDB2::FluxColumn:0x00007fb23a8ebdd8 @index=5, @label="_value", @data_type="double", @group=false, @default_value=nil>, #<InfluxDB2::FluxColumn:0x00007fb23a8ebce8 @index=6, @label="_field", @data_type="string", @group=true, @default_value=nil>, #<InfluxDB2::FluxColumn:0x00007fb23a8ebae0 @index=7, @label="_measurement", @data_type="string", @group=true, @default_value=nil>, #<InfluxDB2::FluxColumn:0x00007fb23a8eb9c8 @index=8, @label="cpu", @data_type="string", @group=true, @default_value=nil>, #<InfluxDB2::FluxColumn:0x00007fb23a8eb888 @index=9, @label="host", @data_type="string", @group=true, @default_value=nil>, #<InfluxDB2::FluxColumn:0x00007fb23a8eb798 @index=10, @label="user", @data_type="string", @group=true, @default_value=nil>], @records=[#<InfluxDB2::FluxRecord:0x00007fb23a9134c8 @table=1, @values={"result"=>nil, "table"=>1, "_start"=>"2021-07-02T09:01:51.412495093+00:00", "_stop"=>"2021-07-02T09:02:51.412495093+00:00", "_time"=>"2021-07-02T09:02:00.000000000+00:00", "_value"=>0.20020020009084222, "_field"=>"usage_user", "_measurement"=>"cpu", "cpu"=>"cpu0", "host"=>"mdbenergy", "user"=>"admin"}>, #<InfluxDB2::FluxRecord:0x00007fb23a91b808 @table=1, @values={"result"=>nil, "table"=>1, "_start"=>"2021-07-02T09:01:51.412495093+00:00", "_stop"=>"2021-07-02T09:02:51.412495093+00:00", "_time"=>"2021-07-02T09:02:10.000000000+00:00", "_value"=>0.5010020040614898, "_field"=>"usage_user", "_measurement"=>"cpu", "cpu"=>"cpu0", "host"=>"mdbenergy", "user"=>"admin"}>, #<InfluxDB2::FluxRecord:0x00007fb23a918810 @table=1, @values={"result"=>nil, "table"=>1, "_start"=>"2021-07-02T09:01:51.412495093+00:00", "_stop"=>"2021-07-02T09:02:51.412495093+00:00", "_time"=>"2021-07-02T09:02:20.000000000+00:00", "_value"=>0.4008016032701137, "_field"=>"usage_user", "_measurement"=>"cpu", "cpu"=>"cpu0", "host"=>"mdbenergy", "user"=>"admin"}>, #<InfluxDB2::FluxRecord:0x00007fb23a92bde8 @table=1, @values={"result"=>nil, "table"=>1, "_start"=>"2021-07-02T09:01:51.412495093+00:00", "_stop"=>"2021-07-02T09:02:51.412495093+00:00", "_time"=>"2021-07-02T09:02:30.000000000+00:00", "_value"=>5.110220441077249, "_field"=>"usage_user", "_measurement"=>"cpu", "cpu"=>"cpu0", "host"=>"mdbenergy", "user"=>"admin"}>, #<InfluxDB2::FluxRecord:0x00007fb23a928d50 @table=1, @values={"result"=>nil, "table"=>1, "_start"=>"2021-07-02T09:01:51.412495093+00:00", "_stop"=>"2021-07-02T09:02:51.412495093+00:00", "_time"=>"2021-07-02T09:02:40.000000000+00:00", "_value"=>0.20020020023650706, "_field"=>"usage_user", "_measurement"=>"cpu", "cpu"=>"cpu0", "host"=>"mdbenergy", "user"=>"admin"}>]>, 2=>#<InfluxDB2::FluxTable:0x00007fb23f08b300 @columns=[#<InfluxDB2::FluxColumn:0x00007fb23a8e0348 @index=0, @label="result", @data_type="string", @group=false, @default_value="sum">, #<InfluxDB2::FluxColumn:0x00007fb23a8e01e0 @index=1, @label="table", @data_type="long", @group=false, @default_value=nil>, #<InfluxDB2::FluxColumn:0x00007fb23a8e00f0 @index=2, @label="_start", @data_type="dateTime:RFC3339", @group=true, @default_value=nil>, #<InfluxDB2::FluxColumn:0x00007fb23a8e0078 @index=3, @label="_stop", @data_type="dateTime:RFC3339", @group=true, @default_value=nil>, #<InfluxDB2::FluxColumn:0x00007fb23a8ebe78 @index=4, @label="_time", @data_type="dateTime:RFC3339", @group=false, @default_value=nil>, #<InfluxDB2::FluxColumn:0x00007fb23a8ebdd8 @index=5, @label="_value", @data_type="double", @group=false, @default_value=nil>, #<InfluxDB2::FluxColumn:0x00007fb23a8ebce8 @index=6, @label="_field", @data_type="string", @group=true, @default_value=nil>, #<InfluxDB2::FluxColumn:0x00007fb23a8ebae0 @index=7, @label="_measurement", @data_type="string", @group=true, @default_value=nil>, #<InfluxDB2::FluxColumn:0x00007fb23a8eb9c8 @index=8, @label="cpu", @data_type="string", @group=true, @default_value=nil>, #<InfluxDB2::FluxColumn:0x00007fb23a8eb888 @index=9, @label="host", @data_type="string", @group=true, @default_value=nil>, #<InfluxDB2::FluxColumn:0x00007fb23a8eb798 @index=10, @label="user", @data_type="string", @group=true, @default_value=nil>], @records=[#<InfluxDB2::FluxRecord:0x00007fb23f08b058 @table=2, @values={"result"=>nil, "table"=>2, "_start"=>"2021-07-02T09:01:51.412495093+00:00", "_stop"=>"2021-07-02T09:02:51.412495093+00:00", "_time"=>"2021-07-02T09:02:00.000000000+00:00", "_value"=>0.30030030028192817, "_field"=>"usage_user", "_measurement"=>"cpu", "cpu"=>"cpu1", "host"=>"mdbenergy", "user"=>"admin"}>, #<InfluxDB2::FluxRecord:0x00007fb23f088218 @table=2, @values={"result"=>nil, "table"=>2, "_start"=>"2021-07-02T09:01:51.412495093+00:00", "_stop"=>"2021-07-02T09:02:51.412495093+00:00", "_time"=>"2021-07-02T09:02:10.000000000+00:00", "_value"=>0.6024096385330935, "_field"=>"usage_user", "_measurement"=>"cpu", "cpu"=>"cpu1", "host"=>"mdbenergy", "user"=>"admin"}>, #<InfluxDB2::FluxRecord:0x00007fb23f090e18 @table=2, @values={"result"=>nil, "table"=>2, "_start"=>"2021-07-02T09:01:51.412495093+00:00", "_stop"=>"2021-07-02T09:02:51.412495093+00:00", "_time"=>"2021-07-02T09:02:20.000000000+00:00", "_value"=>0.40040040049167785, "_field"=>"usage_user", "_measurement"=>"cpu", "cpu"=>"cpu1", "host"=>"mdbenergy", "user"=>"admin"}>, #<InfluxDB2::FluxRecord:0x00007fb23f09a080 @table=2, @values={"result"=>nil, "table"=>2, "_start"=>"2021-07-02T09:01:51.412495093+00:00", "_stop"=>"2021-07-02T09:02:51.412495093+00:00", "_time"=>"2021-07-02T09:02:30.000000000+00:00", "_value"=>4.2042042042886285, "_field"=>"usage_user", "_measurement"=>"cpu", "cpu"=>"cpu1", "host"=>"mdbenergy", "user"=>"admin"}>, #<InfluxDB2::FluxRecord:0x00007fb23f0a2938 @table=2, @values={"result"=>nil, "table"=>2, "_start"=>"2021-07-02T09:01:51.412495093+00:00", "_stop"=>"2021-07-02T09:02:51.412495093+00:00", "_time"=>"2021-07-02T09:02:40.000000000+00:00", "_value"=>0.20040080163505686, "_field"=>"usage_user", "_measurement"=>"cpu", "cpu"=>"cpu1", "host"=>"mdbenergy", "user"=>"admin"}>]>}

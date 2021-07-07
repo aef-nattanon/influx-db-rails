@@ -1,9 +1,15 @@
+default: &default
+  username: aeflanta
+  password: aefaefaef
+  # database name
+  database: "example-db"
+  # influxdb api endpoint
+  host: "localhost"
+  port: 8086
+
 development:
-  username: aeflanta
-  password: aefaef
+  <<: *default
 production:
-  username: aeflanta
-  password: aefaef
+  <<: *default
 test:
-  username: aeflanta
-  password: aefaef
+  <<: *default
